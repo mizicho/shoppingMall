@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <title>쇼핑몰</title>
+    <style>
+        body {
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+
+        .mainImg {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 500px;
+        }
+
+        .productData {
+            text-align: justify;
+            width: 500px;
+            margin: auto;
+            padding: 20px 0px;
+        }
+
+        .moneyData {
+            width: 500px;
+            margin: auto;
+            padding: 10px 0px;
+        }
+
+        .productName {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .productInfo {
+            margin-top: 5px;
+        }
+
+        .customerData {
+            width: 500px;
+            margin: auto;
+            padding-bottom: 50px;
+        }
+
+        .wrap {
+            text-align: center;
+        }
+
+        .orders {
+            padding-top: 50px;
+        }
+    </style>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#orders-box').html('');
+            listing();
+        });
+
+        function order() {
+            let Name = $('#customerName').val();
+            let Select = $('#customerSelect').val();
+            let Address = $('#customerAddress').val();
+            let PhoneNumber = $('#customerPhoneNumber').val();
+
+            if (Name == '') {
+                alert('이름을 입력하세요.');
+                return;
+            } else if (Select == '') {
+                alert('수량을 입력하세요.');
+                return;
+            } else if (Address == '') {
+                alert('주소를 입력하세요.');
+                return;
+            } else if (PhoneNumber == '') {
+                alert('전화번호를 입력하세요.');
+                return;
+            }
+
+            $.ajax({
+                type:'POST',
+                url:'/shoppingMall',
+                data:{name_give:Name, select_give:Select, address_give:Address, phoneNumber_give:PhoneNumber},
+                sucess: function (response) {
+                    if(response['result'] == 'success'){
+                        alert('주문이 완료되었습니다.');
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/shoppingMall",
+                data: {},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert(response['msg']);
+                        
+                        let order = response['all_orders']
+                        for(let i =0; i <  order.length; i++){
+                            let name = reviews[i]['name']
+                            let select = reviews[i]['select']
+                            let address = reviews[i]['address']
+                            let phoneNumber = reviews[i]['phoneNumber']
+
+                            let temp_html = `<tr>
+                                    <td>${name}</td>
+                                    <td>${select}</td>
+                                    <td>${address}</td>
+                                    <td>${phoneNumber}</td>
+                                    </tr>`
+                            $('#orders-box').append(temp_html)
+                        }
+
+                    } else {
+                        alert('리뷰를 받아오지 못했습니다');
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (response) {
+                    let moneyrate = response[1];
+                    let usdkrw = moneyrate['rate'];
+                    let temp_html = `${usdkrw}`
+                    $("#money").append(temp_html);
+                }
+            })
+        });
+    </script>
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='닥터지선크림.jpg') }}" alt="suncream" class="mainImg">
+    <div class="productData">
+        <span class="productName">닥터지 그린 마일드 선크림</span>
+        <span class="productPrice">가격 : 18,000 원 /개</span>
+        <div class="productInfo">민감하고 여린 피부를 위한 순한 안심 선크림! 순한 미네랄 필터가 피부에 보호막을 형성해 자외선을 차단하는 무기자차로 예민한 피부도 사용이 가능한 자외선
+            차단제입니다.</div>
+    </div>
+
+    <div class="moneyData">
+        <span>달러-원 환율:</span> <span id="money"></span>
+    </div>
+
+    <form class="customerData">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">주문자 이름</span>
+            </div>
+            <input id="customerName" type="text" class="form-control" placeholder="" aria-label="Username"
+                aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">수량</label>
+            </div>
+            <select class="custom-select" id="customerSelect">
+                <option selected></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">주소</span>
+            </div>
+            <input id="customerAddress" type="text" class="form-control" placeholder="" aria-label="Username"
+                aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">전화번호</span>
+            </div>
+            <input id="customerPhoneNumber" type="text" class="form-control" placeholder="" aria-label="Username"
+                aria-describedby="basic-addon1">
+        </div>
+        <div class="wrap">
+            <button onclick="order()" type="button" class="btn btn-success">주문하기</button>
+        </div>
+        <div class="orders">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">이름</th>
+                        <th scope="col">수량</th>
+                        <th scope="col">주소</th>
+                        <th scope="col">전화번호</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-box">
+                    <tr>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                        <td>@mdo</td>
+                        <td>@mdo</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</body>
+
+</html>
