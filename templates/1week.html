@@ -103,7 +103,8 @@
                 type:'POST',
                 url:'/shoppingMall',
                 data:{name_give:Name, select_give:Select, address_give:Address, phoneNumber_give:PhoneNumber},
-                sucess: function (response) {
+                success: function (response) {
+                    console.log(response)
                     if(response['result'] == 'success'){
                         alert('주문이 완료되었습니다.');
                         window.location.reload();
@@ -123,10 +124,10 @@
                         
                         let order = response['all_orders']
                         for(let i =0; i <  order.length; i++){
-                            let name = reviews[i]['name']
-                            let select = reviews[i]['select']
-                            let address = reviews[i]['address']
-                            let phoneNumber = reviews[i]['phoneNumber']
+                            let name = order[i]['name']
+                            let select = order[i]['select']
+                            let address = order[i]['address']
+                            let phoneNumber = order[i]['phoneNumber']
 
                             let temp_html = `<tr>
                                     <td>${name}</td>
